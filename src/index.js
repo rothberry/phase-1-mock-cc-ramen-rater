@@ -8,6 +8,8 @@ const ramenMenu = document.getElementById("ramen-menu");
 const ramenDetail = document.getElementById("ramen-detail");
 const ramenDetailImage = document.querySelector(".detail-image");
 const ramenForm = document.getElementById("new-ramen");
+const editRamenForm = document.getElementById("edit-ramen");
+const deleteBtn = ramenDetail.querySelector(".delete-btn")
 const URL = "http://localhost:3000/ramens/";
 
 let allRamenArray = [];
@@ -17,6 +19,7 @@ const fetchAllRamen = () => {
     .then((res) => res.json())
     .then((allRamens) => {
       // for each element of the allRamens array, we need to create an img tag with that data
+      updateDisplayRamen(allRamens[0])
       allRamenArray = allRamens;
       allRamens.forEach((oneRamen) => {
         createOneImage(oneRamen);
@@ -50,6 +53,8 @@ const handleRamenClick = (event) => {
 };
 
 const updateDisplayRamen = (detailRamen) => {
+  ramenDetail.className = detailRamen.id
+  deleteBtn.id = detailRamen.id
   ramenDetailImage.src = detailRamen.image;
   ramenDetailImage.alt = detailRamen.name;
   ramenDetail.querySelector(".name").innerText = detailRamen.name;
@@ -77,10 +82,58 @@ const addNewRamen = (event) => {
   ramenForm.reset();
 };
 
+
+// ? See the details for the first ramen as soon as the page loads (without clicking on an image)
+
+// ? Update the rating and comment for a ramen by submitting a form. Changes should be reflected on the frontend. No need to persist. You can add this HTML to the index.html file to create the edit form:
+const updateCurrentRamen = e => {
+    e.preventDefault()
+    // document.getElementById("edit-rating").value
+    // how to change one ramen while leaving the other the same??
+    // foreach? map? filter? find?
+    allRamenArray = allRamenArray.map(oneRamen => {
+        // update ONLY if the current ramen is the oneRamen?
+        if (oneRamen.id === parseInt(ramenDetail.className)) {
+            oneRamen.rating = editRamenForm[0].value
+            document.getElementById("rating-display").textContent = editRamenForm[0].value
+            oneRamen.comment = editRamenForm[1].value
+            document.getElementById("comment-display").textContent = editRamenForm[1].value
+
+        }
+        return oneRamen
+    })
+}
+
+const handleDeleteRamen = event => {
+    // console.log(ramenDetail.className)
+    // console.log(event.target.id)
+    // first remove the ramen with that id from our array
+    // one way>>> if our array is sequencial
+    // allRamenArray.splice(Number(event.target.id) - 1,1)
+    // start with array of 5 things? .something => array of 4 things..
+    allRamenArray = allRamenArray.filter(ramen => {
+        return ramen.id !== parseInt(event.target.id)
+    })
+    // remove from img list
+    // wipe the image list, and recreate
+    ramenMenu.innerText = "<h1></h1>"
+    // ramenMenu.innerHTML = "<h1></h1>"
+    allRamenArray.forEach(oneRamen => {
+        createOneImage(oneRamen)
+    })
+    // debugger
+    // remove from detail
+    updateDisplayRamen(allRamenArray[0])
+}
+
+// ? Delete a ramen (you can add a "delete" button if you'd like, or use an existing element to handle the delete action). The ramen should be removed from the ramen-menu div, and should not be displayed in the ramen-detail div. No need to persist.
+
 const init = () => {
   // put all my runtime functions
   fetchAllRamen();
   ramenForm.addEventListener("submit", addNewRamen);
+  editRamenForm.addEventListener("submit", updateCurrentRamen)
+  deleteBtn.addEventListener("click", handleDeleteRamen)
 };
 
 init();

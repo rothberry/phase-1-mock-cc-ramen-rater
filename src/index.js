@@ -8,17 +8,23 @@
 // ! GLOBAL VARIABLES
 const RAMEN_URL = "http://localhost:3000/ramens/";
 const menu = document.querySelector("#ramen-menu");
+// Can be global because rating/comment are modified in multiple functions
+const detailRating = document.querySelector("#rating-display");
+const detailComment = document.querySelector("#comment-display");
+const deleteBtn = document.getElementById("delete");
 // const form = document.getElementById("new-ramen");
+// let allRamens = [];
 
 // ! COMMUNICATION WITH THE SERVER
 const fetchAllRamens = () => {
   fetch(RAMEN_URL)
     .then((response) => response.json())
     .then((ramensArray) => {
-      console.log(ramensArray);
+      allRamens = ramensArray;
       ramensArray.forEach((ramenObj) => {
         renderRamenPicture(ramenObj);
       });
+      renderDetails(ramensArray[0]);
     });
 };
 
@@ -27,24 +33,45 @@ const renderRamenPicture = (ramenObj) => {
   const img = document.createElement("img");
   img.src = ramenObj.image;
   img.alt = ramenObj.name;
+  img.id = `ramen-${ramenObj.id}`;
 
   img.addEventListener("click", (e) => {
     // console.log(e.target)
-    console.log(ramenObj);
-    const detailImage = document.querySelector(".detail-image");
-    const detailName = document.querySelector(".name");
-    const detailRest = document.querySelector(".restaurant");
-    const detailRating = document.querySelector("#rating-display");
-    const detailComment = document.querySelector("#comment-display");
-
-    detailImage.src = ramenObj.image;
-    detailImage.alt = ramenObj.name;
-    detailName.textContent = ramenObj.name;
-    detailRest.textContent = ramenObj.restaurant;
-    detailRating.textContent = ramenObj.rating;
-    detailComment.textContent = ramenObj.comment;
+    renderDetails(ramenObj);
   });
   menu.append(img);
+};
+
+const renderDetails = (ramenObj) => {
+  const detailImage = document.querySelector(".detail-image");
+  const detailName = document.querySelector(".name");
+  const detailRest = document.querySelector(".restaurant");
+
+  detailImage.src = ramenObj.image;
+  detailImage.alt = ramenObj.name;
+  detailName.textContent = ramenObj.name;
+  detailRest.textContent = ramenObj.restaurant;
+  detailRating.textContent = ramenObj.rating;
+  detailComment.textContent = ramenObj.comment;
+
+  deleteBtn.addEventListener("click", (e) => {
+    // console.log("DELETING");
+    // console.log(ramenObj);
+    // console.log(e.target);
+    // remove the image
+    detailImage.src = "./assets/image-placeholder.jpg";
+    detailImage.alt = "Insert Name Here";
+    detailName.textContent = "Insert Name Here";
+    detailRest.textContent = "Insert Restaurant Here";
+    detailRating.textContent = "Insert Raing Here";
+    detailComment.textContent = "Insert Comment Here";
+    // debugger;
+
+    const imgToRemove = menu.querySelector(`#ramen-${ramenObj.id}`);
+    if (imgToRemove) {
+      imgToRemove.remove();
+    }
+  });
 };
 
 // ! PAGE LOAD FUNCTIONS
@@ -62,11 +89,15 @@ const init = () => {
     };
     renderRamenPicture(newRamenObj);
   });
+
+  document.getElementById("edit-ramen").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const updatedRating = e.target.rating.value;
+    const updatedComment = e.target["edit-comment"].value;
+    // debugger;
+    detailRating.textContent = updatedRating;
+    detailComment.textContent = updatedComment;
+    e.target.reset();
+  });
 };
 init();
-
-// ? init function is optional
-// fetchAllRamens()
-// someotherFunc()
-// otherfFunc()
-// somethingElse()

@@ -13,6 +13,7 @@ const getRamens = () => {
   fetch(URL)
     .then((res) => res.json())
     .then((ramens) => {
+      populateDisplay(ramens[0]);
       ramens.forEach((ramen) => {
         renderRamen(ramen);
       });
@@ -26,13 +27,21 @@ const renderRamen = (ramenObj) => {
 
   img.addEventListener("click", (e) => {
     console.log(e.target, ramenObj);
-    document.querySelector(".detail-image").src = ramenObj.image;
-    document.querySelector(".name").textContent = ramenObj.name;
-    document.querySelector(".restaurant").textContent = ramenObj.restaurant;
-    document.querySelector("#rating-display").textContent = ramenObj.rating;
-    document.querySelector("#comment-display").textContent = ramenObj.comment;
+    populateDisplay(ramenObj);
   });
   menu.append(img);
+};
+
+const populateDisplay = (ramenObj) => {
+  document.querySelector(".detail-image").src = ramenObj.image;
+  document.querySelector(".name").textContent = ramenObj.name;
+  document.querySelector(".restaurant").textContent = ramenObj.restaurant;
+  renderRatingComment(ramenObj.rating, ramenObj.comment);
+};
+
+const renderRatingComment = (rating, comment) => {
+  document.querySelector("#rating-display").textContent = rating;
+  document.querySelector("#comment-display").textContent = comment;
 };
 
 const handleSubmit = (e) => {
@@ -54,6 +63,17 @@ const handleSubmit = (e) => {
   renderRamen(newRamenObj);
 };
 
-getRamens();
+const handleEdit = (e) => {
+  e.preventDefault();
+  const editRating = e.target.rating.value;
+  const editComment = e.target["edit-comment"].value;
+  renderRatingComment(editRating, editComment);
+};
 
-document.getElementById("new-ramen").addEventListener("submit", handleSubmit);
+const init = () => {
+  getRamens();
+  document.getElementById("new-ramen").addEventListener("submit", handleSubmit);
+  document.getElementById("edit-ramen").addEventListener("submit", handleEdit);
+};
+
+init()
